@@ -8,6 +8,7 @@ Definitions of different models used in livelatex.
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib import admin
+from server.settings import INPUT_FILE_TYPES, OUTPUT_FILE_TYPES
 
 class UserProfile(models.Model):
 	user = models.OneToOneField(User)
@@ -33,32 +34,6 @@ class File(models.Model):
 	This module define a file in a project. This will
 	reside in the Project as many-to-one relationship
 	"""
-	INPUT_FILE_TYPES = (
-		('.bib', 'Bibliography database (.bib)'),
-		('.bst', 'BiBTeX style file (.bst)'),
-		('.cls', 'Class file (.cls)'),
-		('.dtx', 'DOcumented TeX (.dtx)'),
-		('.ins', '.dtx Installer file (.ins)'),
-		('.fd', 'Font description (.fd)'),
-		('.sty', 'LaTeX macro package (.sty)'),
-		('.tex', 'LaTeX or TeX input file (.tex)'),		
-	)
-	
-	OUTPUT_FILE_TYPES = (
-		('.aux', 'Aux file (.aux)'),
-		('.blg', 'BiBTeX log (.blg)'),
-		('.bbl', 'Bibliography file output (.bbl)'),
-		('.dvi', 'Device Independent File (.dvi)'),
-		('.pdf', 'Portable Document Format (.pdf)'),
-		('.log', 'Log file (.log)'),
-		('.toc', 'Table of contents (.toc)'),
-		('.lof', 'List of figures (.lof)'),
-		('.lot', 'List of tables (.lof)'),
-		('.idx', 'Document index (.idx)'),
-		('.ind', 'Document index (.ind)'),
-		('.ilg', 'makeindex log (.ilg)'),
-	)
-	
 	project = models.ForeignKey(Project)
 	file_name = models.CharField(max_length=32)
 	file_type = models.CharField(max_length=5, choices=INPUT_FILE_TYPES)
@@ -68,3 +43,4 @@ class File(models.Model):
 	
 	def __unicode__(self):
 		return self.file_name
+
