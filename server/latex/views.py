@@ -15,6 +15,7 @@ from latex.models import *
 from latex.forms import *
 from texfarm.farmer import *
 
+
 def home(request):
 	site_template  = get_template('template.html')
 	html = site_template.render(Context({}))
@@ -75,7 +76,7 @@ def edit_project(request, project_id):
 			
 		new_project.long_name = form.data['long_name']
 		new_project.description = form.data['description']
-		commands = form.data['commands']
+		new_project.commands = form.data['commands']
 		new_project.save()
 		return HttpResponse("Project updated.")
 	else:

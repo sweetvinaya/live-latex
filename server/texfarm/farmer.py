@@ -23,7 +23,10 @@ def make_project(project_id):
 	print WORK_DIR
 	wdir = WORK_DIR + str(project_id) +"/"
 	print wdir
-	os.mkdir(wdir)
+	try:
+		os.mkdir(wdir)
+	except OSError:
+		print "already exists!"
 	print "created directory"
 	file_list = project.file_set.all()
 	#generating temporary files
@@ -46,9 +49,10 @@ def make_project(project_id):
 		
 	cmd_dict = {}
 	for c in cmd_list:
-		key, value = c.split(' ')
-		cmd_dict[key] = value
-	print cmd_dict
+		c = c.strip()
+		print c
+		value, key = c.split(' ') #here, value: program name, and key will be file name
+		cmd_dict[key] = value # {a:latex, b:bibtex} etc.
 	#Processing
 	odir = '-output-directory='+ wdir
 	print odir
@@ -56,14 +60,14 @@ def make_project(project_id):
 	out=""
 	err=""
 	for key in cmd_dict.iterkeys():
-		print key, odir, ofor, cmd_dict[key]
-		name = wdir + cmd_dict[key]
-		process = subprocess.Popen([key, odir, ofor, name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		val = cmd_dict[key]
+		print val, odir, ofor, key 
+		name = wdir + key
+		process = subprocess.Popen([val, odir, ofor, name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		out,err = process.communicate()
 		print out
 	return out
 	
-
 class TeXFarm(threading.Thread):
 	def __init__(self, project_id):
 		threading.Thread.__init__(self)
@@ -72,3 +76,5 @@ class TeXFarm(threading.Thread):
 	def run(self):
 		log = make_project(self.project_id)
 		return log
+		
+
