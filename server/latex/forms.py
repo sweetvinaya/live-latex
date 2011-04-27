@@ -178,9 +178,11 @@ class FileCreateForm(forms.ModelForm):
 class ProjectForm(forms.ModelForm):
 	class Meta:
 		model = Project
-		fields = ('short_name', 'long_name', 'description')
+		fields = ('long_name', 'description', 'commands')
 		
 #user login form
 class UserLogin(forms.Form):
 	username = forms.CharField(label="Username")
 	password = forms.CharField(label="Password", widget=forms.PasswordInput)
+	
+#compilation form

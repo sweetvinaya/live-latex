@@ -17,6 +17,9 @@
 			<li><a href="/projects/{{ project.id }}/{{ file.id }}">{{ file.file_name }}</a></li>
 		{% endfor %}
 		</ul>
+		<form method="post">{% csrf_token %}
+			<input type="submit" value="Compile Project" />
+		</form>
 	{% else %}
 		<p>No files yet!</p>
 	{% endif %}

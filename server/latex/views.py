@@ -13,6 +13,7 @@ from django.core.context_processors import csrf
 
 from latex.models import *
 from latex.forms import *
+from texfarm.farmer import *
 
 def home(request):
 	site_template  = get_template('template.html')
@@ -39,11 +40,11 @@ def create_project(request):
 		if not form.is_valid():
 			print "error"
 		user = User.objects.get(username=request.user.username)
-		short_name = form.data['short_name']
 		long_name = form.data['long_name']
 		description = form.data['description']
+		commands = form.data['commands']
 		
-		new_project = Project(author=user, short_name=short_name, long_name=long_name, description=description)
+		new_project = Project(author=user, long_name=long_name, description=description, commands=commands)
 		new_project.save()
 		
 		return HttpResponse("Created new project successfully")
@@ -54,9 +55,36 @@ def create_project(request):
 		
 #project_view: shows the files in a project.
 def project_view(request, project_id):
-	project = Project.objects.get(id=project_id)
-	file_list = Project.objects.get(id=project_id).file_set.all().order_by("-created")
-	return render_to_response('project-view.html', {'project':project, 'file_list': file_list}, context_instance=RequestContext(request))
+	if request.POST:
+		thread = TeXFarm(project_id)
+		log = thread.run()
+		return HttpResponse(log)
+	else:
+		project = Project.objects.get(id=project_id)
+		file_list = Project.objects.get(id=project_id).file_set.all().order_by("-created")
+		return render_to_response('project-view.html', {'project':project, 'file_list': file_list}, context_instance=RequestContext(request))
+
+#edit_project_view
+
+def edit_project(request, project_id):
+	new_project = Project.objects.get(id=project_id)
+	if request.POST:
+		#update the content using the post data.
+		new_data = request.POST.copy()
+		form = ProjectForm(new_data)
+
+		if not form.is_valid():
+			print "error"
+			
+		new_project.long_name = form.data['long_name']
+		new_project.description = form.data['description']
+		commands = form.data['commands']
+		new_project.save()
+	else:
+		#show the project form, with current data embedded in it.
+		
+		
+
 	
 #create_file: create a new file, and add it to database
 def create_file(request, project_id):
@@ -74,7 +102,7 @@ def create_file(request, project_id):
 		content = form.data['content']
 		created = datetime.datetime.today()
 		
-		new_file = File(project=project,file_name=file_name, file_type=file_type, created=created)
+		new_file = File(project=project, file_name=file_name, file_type=file_type, content=content, created=created)
 		new_file.save()
 		return HttpResponse("Created file!")
 	else:
@@ -140,7 +168,7 @@ def user_login(request):
 			return HttpResponse('False')
 	else:
 		form = UserLogin()
-		return render_to_response('user_login.html', {'form':form,}, context_instance=RequestContext(request))
+		return render_to_response('user_login.html', {'form':form}, context_instance=RequestContext(request))
 
 
 #To check user logged in or not

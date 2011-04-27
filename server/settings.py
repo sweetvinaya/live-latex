@@ -121,6 +121,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 	'server.latex',
+	'server.texfarm',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -171,4 +172,13 @@ OUTPUT_FILE_TYPES = (
 	('.idx', 'Document index (.idx)'),
 	('.ind', 'Document index (.ind)'),
 	('.ilg', 'makeindex log (.ilg)'),
+)
+
+BUILDERS = (
+	('latex', 'LaTeX compiler'),
+	('dvips', 'dvi to ps converter'),
+	('dvipdf', 'dvi to pdf converter'),
+	('ps2pdf', 'ps to pdf converter'),
+	('pdflatex', 'PDF from LaTeX'),
+	('bibtex', 'BibTeX compiler'),
 )
