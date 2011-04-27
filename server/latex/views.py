@@ -80,11 +80,12 @@ def edit_project(request, project_id):
 		new_project.description = form.data['description']
 		commands = form.data['commands']
 		new_project.save()
+		return HttpResponse("Project updated.")
 	else:
 		#show the project form, with current data embedded in it.
 		
-		
-
+		form = ProjectForm(initial={'long_name':new_project.long_name, 'description':new_project.description, 'commands':new_project.commands})
+		return render_to_response('edit_project.html', {'form':form,}, context_instance=RequestContext(request))
 	
 #create_file: create a new file, and add it to database
 def create_file(request, project_id):
