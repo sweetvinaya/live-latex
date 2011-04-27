@@ -14,15 +14,24 @@
 	{% if file_list %}
 		<ul>
 		{% for file in file_list %}
-			<li><a href="/projects/{{ project.id }}/{{ file.id }}">{{ file.file_name }}</a></li>
+			<li><a href="/projects/{{ project.id }}/{{ file.id }}/editfile">{{ file.file_name }}</a></li>
 		{% endfor %}
 		</ul>
-		<form method="post">{% csrf_token %}
+		<form action="/compile/" method="post">
 			<input type="submit" value="Compile Project" />
 		</form>
 	{% else %}
 		<p>No files yet!</p>
 	{% endif %}
+	<form action="/projects/{{ project.id }}/addfile" >
+		<input type="submit" value="Create File" />
+	</form>
+	<form action="/projects/{{ project.id }}/editproject" >
+		<input type="submit" value="Edit Project" />		
+	</form>
+	<form action="/projects/{{ project.id }}/delproject" >
+		<input type="submit" value="Delete Project" />		
+	</form>
 
 </body>
 </html>

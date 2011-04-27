@@ -1,0 +1,7 @@
+<form method="post">
+	{{ form.as_p }}
+	<input type="submit" value="Update" />{% csrf_token %}
+</form>
+<form action="/projects/{{ project_id }}/{{ file_id }}/delfile">
+	<input type="submit" value="Delete" />
+</form>

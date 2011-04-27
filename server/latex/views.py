@@ -20,12 +20,14 @@ def home(request):
 	html = site_template.render(Context({}))
 	return HttpResponse(html)
 
+################################################################################################################
+
 #Project view, which is to be shown after user login.
 def projects(request):
 	if request.user.is_authenticated():
 		u = User.objects.get(username=request.user.username)
 		project_list = Project.objects.filter(author=u)
-		return render_to_response("projects.html", {'project_list' : project_list})
+		return render_to_response("projects.html", {'project_list' : project_list}, context_instance=RequestContext(request))
 		
 #create a project
 def create_project(request):
@@ -55,14 +57,9 @@ def create_project(request):
 		
 #project_view: shows the files in a project.
 def project_view(request, project_id):
-	if request.POST:
-		thread = TeXFarm(project_id)
-		log = thread.run()
-		return HttpResponse(log)
-	else:
-		project = Project.objects.get(id=project_id)
-		file_list = Project.objects.get(id=project_id).file_set.all().order_by("-created")
-		return render_to_response('project-view.html', {'project':project, 'file_list': file_list}, context_instance=RequestContext(request))
+	project = Project.objects.get(id=project_id)
+	file_list = Project.objects.get(id=project_id).file_set.all().order_by("-created")
+	return render_to_response('project-view.html', {'project':project, 'file_list': file_list}, context_instance=RequestContext(request))
 
 #edit_project_view
 
@@ -87,6 +84,20 @@ def edit_project(request, project_id):
 		form = ProjectForm(initial={'long_name':new_project.long_name, 'description':new_project.description, 'commands':new_project.commands})
 		return render_to_response('edit_project.html', {'form':form,}, context_instance=RequestContext(request))
 	
+
+def delete_project(request, project_id):
+	del_project = Project.objects.get(id=project_id)
+	del_project.delete()
+	return HttpResponse("Project deleted")
+
+def compile_project(request, project_id):
+	if request.POST:
+		thread = TeXFarm(project_id)
+		log = thread.run()
+		return HttpResponse(log)
+
+
+#############################################################################################################################
 #create_file: create a new file, and add it to database
 def create_file(request, project_id):
 	if request.POST:
@@ -108,8 +119,38 @@ def create_file(request, project_id):
 		return HttpResponse("Created file!")
 	else:
 		form = FileCreateForm()
-		return render_to_response('file-edit.html', {'form':form}, context_instance=RequestContext(request))
+		return render_to_response('file_create.html', {'form':form}, context_instance=RequestContext(request))
 
+def edit_file(request, project_id, file_id):
+	#edit and view will be single one.
+	file_edit = File.objects.get(id=file_id)
+	print file_edit.content
+	if request.POST:
+		#update the content using the post data.
+		new_data = request.POST.copy()
+		form = FileCreateForm(new_data)
+
+		if not form.is_valid():
+			print "error"
+			
+		file_edit.file_name = form.data['file_name']
+		file_edit.file_type = form.data['file_type']
+		file_edit.content = form.data['content']
+		file_edit.save()
+		return HttpResponse("File updated.")
+	else:
+		#show the project form, with current data embedded in it.
+		
+		form = FileCreateForm(initial={'file_name':file_edit.file_name, 'file_type':file_edit.file_type, 'content':file_edit.content})
+		return render_to_response('file_edit.html', {'form':form, 'project_id':project_id, 'file_id':file_id}, context_instance=RequestContext(request))
+
+
+def delete_file(request, file_id):
+	del_file = File.objects.get(id=file_id)
+	del_file.delete()
+	return HttpResponse("file deleted")
+
+##################################################################################################################
 #User Registration
 def register_user(request):
 	if request.POST:
