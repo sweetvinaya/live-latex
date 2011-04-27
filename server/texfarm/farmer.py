@@ -40,33 +40,37 @@ def make_project(project_id):
 		print tmp_file.name
 		os.rename(tmp_file.name, new_name)
 	
-	#done
-	#TODO: May need a change. try to do with ajax
-	#compiling the project.
-	print project.commands
 	cmd_list = str(project.commands).split(',')
-	print cmd_list
-		
+	
+	'''	
 	cmd_dict = {}
 	for c in cmd_list:
 		c = c.strip()
 		print c
 		value, key = c.split(' ') #here, value: program name, and key will be file name
 		cmd_dict[key] = value # {a:latex, b:bibtex} etc.
+	'''
+	
 	#Processing
 	odir = '-output-directory='+ wdir
-	print odir
-	ofor = '-output-format=pdf'
 	out=""
 	err=""
-	for key in cmd_dict.iterkeys():
-		val = cmd_dict[key]
-		print val, odir, ofor, key 
-		name = wdir + key
-		process = subprocess.Popen([val, odir, ofor, name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	compile_log=""
+	cwd = os.getcwd()
+	os.chdir(wdir)
+	print "Changing Work Directory : %s" % wdir
+	for command in cmd_list:
+		command = command.strip()
+		key, value = command.split(' ') 
+		name = value
+		print "key : " + key
+		print "name : " + name
+		process = subprocess.Popen([key, name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		out,err = process.communicate()
-		print out
-	return out
+		compile_log = compile_log + "<br /> " + out
+	os.chdir(cwd)
+	print "Changing Work Directory : %s" % cwd
+	return compile_log
 	
 class TeXFarm(threading.Thread):
 	def __init__(self, project_id):
